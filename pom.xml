@@ -60,21 +60,27 @@
 
     <build>
         <plugins>
-            <!-- 1. Плагин для компиляции -->
+            <!-- 1. Плагин для очистки (вставьте его сюда) -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>allure-results</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+            <!-- 2. Плагин компилятора -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
             </plugin>
 
-            <!-- 2. Плагин для запуска тестов -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
-            </plugin>
-
-            <!-- 3. Плагин Allure (ИСПРАВЛЕНО: тег <plugin>) -->
+            <!-- 3. Плагин Allure -->
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
@@ -84,7 +90,25 @@
                     <resultsDirectory>${project.basedir}/allure-results</resultsDirectory>
                 </configuration>
             </plugin>
-        </plugins>
+        </plugins> <!-- ЗАКРЫВАЕМ ПЕРВЫМ -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </build>
 
 
