@@ -1,7 +1,7 @@
 ![UI Tests](https://github.com)
 
 # 🛒 SauceDemo UI Automation Framework
-... далее твой текст ...
+
 
 
 
