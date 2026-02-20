@@ -25,10 +25,10 @@ jobs:
         # Флаг -Dheadless=true мы уже подготовили в коде ранее
         run: mvn test -Dheadless=true  || true
 
-      - name: Upload Allure Results
+      - name: Deploy report to Github Pages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: allure-results
-          path: allure-results
-          retention-days: 1
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-history
+          publish_branch: gh-pages
