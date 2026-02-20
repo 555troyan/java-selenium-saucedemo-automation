@@ -3,42 +3,69 @@ import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import java.time.Duration;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 public class SauceTest {
     WebDriver driver;
     SauceLoginPage loginPage;
     InventoryPage inventoryPage; // Добавляем вторую страницу
 
+
     @BeforeEach
     void setup() {
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--window-size=1920,1080");
 
-        // Инициализируем обе страницы
+
+        if (System.getProperty("headless", "false").equals("true")) {
+            options.addArguments("--headless");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+        }
+
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver(options);
+
+        // Устанавливаем ожидание, чтобы Selenium не "торопился"
+        driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
+
+        // ИНИЦИАЛИЗИРУЕМ СТРАНИЦЫ (Без этого тест не увидит кнопки)
         loginPage = new SauceLoginPage(driver);
         inventoryPage = new InventoryPage(driver);
-    }
+    } // Обязательно закрываем метод этой скобкой
+
 
     @Test
     @DisplayName("Позитивный тест: Добавление товара в корзину")
     void testAddToCart() {
+        // Добавьте / в конце или убедитесь, что URL полный
         driver.get("https://www.saucedemo.com");
 
-        // 1. Логинимся (используем первый Page Object)
         loginPage.login("standard_user", "secret_sauce");
-
-        // 2. Добавляем товар (используем второй Page Object)
         inventoryPage.addToCart();
 
-        // 3. ПРОВЕРКА 1: На иконке корзины появилась цифра "1"
         String count = inventoryPage.getCartItemsCount();
         Assertions.assertEquals("1", count, "Количество товаров в корзине не совпадает!");
 
-        // 4. ПРОВЕРКА 2: Кнопка сменила текст на "Remove"
         Assertions.assertTrue(inventoryPage.isRemoveButtonDisplayed(),
                 "Кнопка 'Remove' не появилась после добавления в корзину!");
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
