@@ -1,4 +1,4 @@
-name: UI Tests Execution
+name: 555troyan UI Tests Execution
 
 on:
   push:

@@ -1,6 +1,8 @@
-![UI Tests](https://github.com)
+ ![UI Tests by 555troyan](https://github.com)
+
 
 # 🛒 SauceDemo UI Automation Framework
+**Author:** 555troyan
 
 
 
