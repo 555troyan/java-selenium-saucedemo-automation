@@ -1,3 +1,11 @@
+![UI Tests](https://github.com)
+
+# 🛒 SauceDemo UI Automation Framework
+... далее твой текст ...
+
+
+
+
 # 🛒 SauceDemo UI & API Automation Framework
 
 Автоматизация тестирования учебного магазина [SauceDemo](https://www.saucedemo.com) на стеке **Java + Selenium + JUnit 5**.
