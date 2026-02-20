@@ -1,36 +1,33 @@
- ![UI Tests by 555troyan](https://github.com)
-
+![UI Tests](https://github.com)
 
 # 🛒 SauceDemo UI Automation Framework
-**Author:** 555troyan
+Профессиональный фреймворк для автоматизации тестирования магазина [SauceDemo](https://www.saucedemo.com) на языке **Java**.
 
-
-
-
-
-# 🛒 SauceDemo UI & API Automation Framework
-
-Автоматизация тестирования учебного магазина [SauceDemo](https://www.saucedemo.com) на стеке **Java + Selenium + JUnit 5**.
+## 🔗 Ссылки
+*   **Репозиторий:** [://github.com](https://://github.com)
+*   **Живой отчет Allure:** [555troyan.github.io/java-selenium-saucedemo/](https://555troyan.github.io)
 
 ## 🛠 Стек технологий
-*   **Java 17** (LTS)
-*   **Selenium WebDriver** (UI Automation)
-*   **Rest Assured** (API Testing)
-*   **JUnit 5** (Test Runner)
-*   **Maven** (Build Tool)
-*   **Allure Report** (Reporting)
-*   **Docker** (Containerization)
+*   **Java 17** / **Maven**
+*   **Selenium WebDriver** (UI-тесты)
+*   **JUnit 5** (Тест-раннер)
+*   **Allure Report** (Визуализация результатов)
+*   **GitHub Actions** (CI/CD конвейер)
+*   **ThreadLocal** (Параллельный запуск)
 
-## 🏗 Архитектура
-В проекте реализован паттерн **Page Object Model (POM)**. Логика страниц отделена от логики тестов, что обеспечивает легкую поддержку кода.
+## 🚀 Ключевые архитектурные решения
+1.  **Page Object Model (POM):** Разделение логики страниц и тестов для легкой поддержки кода.
+2.  **ThreadLocal WebDriver:** Обеспечена полная изоляция потоков при параллельном запуске. Тесты не «воруют» браузеры друг у друга.
+3.  **Explicit Waits (Явные ожидания):** Решена проблема **Flaky (мигающих) тестов** в CI/CD. Вместо нестабильных пауз `Thread.sleep` используются `WebDriverWait` для ожидания появления/исчезновения элементов.
+4.  **Headless-режим:** Тесты оптимизированы для запуска в Docker-контейнерах и на серверах GitHub Actions с разрешением экрана 1920x1080.
 
-## 🚀 Как запустить
+## 🧪 Что покрыто тестами
+*   **Авторизация:** Позитивные и негативные сценарии (заблокированные пользователи, неверные пароли).
+*   **Корзина:** Полный цикл (Add to Cart -> Verify Badge -> Remove -> Verify Empty).
+*   **Стабильность:** Проверка элементов под нагрузкой в 3+ параллельных потока.
 
-### Локально (Maven)
-Для запуска всех тестов в параллельном режиме:
-```bash
-mvn test
-mvn allure:serve
-docker build -t sauce-tests .
-docker run --rm sauce-tests
-
+## 📥 Как запустить локально
+1. Клонировать репозиторий.
+2. Выполнить команду в терминале:
+   ```bash
+   mvn clean test
