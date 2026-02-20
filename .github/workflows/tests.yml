@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -22,20 +27,21 @@ jobs:
           cache: maven
 
       - name: Run tests
-        # Флаг -Dheadless=true мы уже подготовили в коде ранее
-        run: mvn test -Dheadless=true  || true
+        # Добавляем || true, чтобы даже при упавших тестах отчет генерировался
+        run: mvn clean test -Dheadless=true || true
 
-      - name: Load Allure History
+      - name: Get Allure History
+        # Этот шаг забирает историю из ветки gh-pages для графиков
+        uses: actions/checkout@v4
         if: always()
         continue-on-error: true
-        uses: actions/checkout@v4
         with:
           ref: gh-pages
-          path: gh-pages
+          path: gh-pages-dir
 
       - name: Build Allure Report
-        if: always()
         uses: simple-elf/allure-report-action@master
+        if: always()
         with:
           allure_results: allure-results
           allure_history: allure-history
