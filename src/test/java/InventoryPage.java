@@ -28,14 +28,19 @@ public class InventoryPage {
         wait.until(ExpectedConditions.elementToBeClickable(removeButton)).click();
     }
 
-    @Step("Получение количества товаров")
+    @Step("Ожидание исчезновения счетчика корзины")
+    public void waitForBadgeToDisappear() {
+        // Ждем до 10 секунд, пока список элементов станет пустым
+        wait.until(d -> d.findElements(cartBadge).isEmpty());
+    }
+
+    @Step("Получение количества товаров в корзине")
     public String getCartItemsCount() {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge)).getText();
     }
 
     @Step("Проверка: виден ли счетчик товаров")
     public boolean isCartBadgePresent() {
-        // Проверяем наличие списка элементов без падения в ошибку
         return !driver.findElements(cartBadge).isEmpty();
     }
 }

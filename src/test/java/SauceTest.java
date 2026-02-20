@@ -16,11 +16,10 @@ public class SauceTest {
     void setup() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=1920,1080");
-        options.addArguments("--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
-
-        if (System.getProperty("headless", "false").equals("true")) {
-            options.addArguments("--headless");
-        }
+        options.addArguments("--headless=new"); // Режим без окна для GitHub
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--remote-allow-origins=*");
 
         WebDriverManager.chromedriver().setup();
         driverThreadLocal.set(new ChromeDriver(options));
@@ -29,7 +28,7 @@ public class SauceTest {
 
     @Test
     @DisplayName("Позитивный: Полный цикл работы с корзиной")
-    void testCartCycle() throws InterruptedException {
+    void testCartCycle() {
         WebDriver driver = getDriver();
         SauceLoginPage loginPage = new SauceLoginPage(driver);
         InventoryPage inventoryPage = new InventoryPage(driver);
@@ -38,16 +37,17 @@ public class SauceTest {
 
         loginPage.login("standard_user", "secret_sauce");
 
-        // Добавление
+        // 1. Добавляем и проверяем появление
         inventoryPage.addToCart();
-        Assertions.assertEquals("1", inventoryPage.getCartItemsCount());
+        Assertions.assertEquals("1", inventoryPage.getCartItemsCount(), "Товар не добавился!");
 
-        // Удаление
+        // 2. Удаляем
         inventoryPage.removeItem();
 
-        // Маленькая страховочная пауза для обновления DOM в параллели
-        Thread.sleep(500);
+        // 3. ЖДЕМ, пока счетчик реально исчезнет из DOM (решает проблему Flaky тестов)
+        inventoryPage.waitForBadgeToDisappear();
 
+        // 4. Финальная проверка
         Assertions.assertFalse(inventoryPage.isCartBadgePresent(), "Счетчик не исчез после удаления!");
     }
 
