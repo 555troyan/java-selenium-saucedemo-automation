@@ -1,61 +1,41 @@
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 
 public class InventoryPage {
-    private WebDriver driver;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
-    // 1. Локаторы элементов каталога
-    private By firstItemAddToCartButton = By.id("add-to-cart-sauce-labs-backpack");
-    private By cartBadge = By.className("shopping_cart_badge");
-    private By removeButton = By.id("remove-sauce-labs-backpack");
+    private final By firstItemAddToCartButton = By.id("add-to-cart-sauce-labs-backpack");
+    private final By cartBadge = By.className("shopping_cart_badge");
+    private final By removeButton = By.id("remove-sauce-labs-backpack");
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // 2. Метод: Добавить первый товар (рюкзак) в корзину
+    @Step("Добавление рюкзака в корзину")
     public void addToCart() {
-        driver.findElement(firstItemAddToCartButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(firstItemAddToCartButton)).click();
     }
 
-    // 3. Метод: Получить число товаров на иконке корзины
-    public String getCartItemsCount() {
-        return driver.findElement(cartBadge).getText();
-    }
-
-    // 4. Проверка: Изменилась ли кнопка на "Remove"
-    public boolean isRemoveButtonDisplayed() {
-        return driver.findElement(removeButton).isDisplayed();
-    }
-
-
-
-    // Добавьте это в класс InventoryPage
+    @Step("Удаление рюкзака из корзины")
     public void removeItem() {
-        driver.findElement(removeButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(removeButton)).click();
     }
 
+    @Step("Получение количества товаров")
+    public String getCartItemsCount() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge)).getText();
+    }
+
+    @Step("Проверка: виден ли счетчик товаров")
     public boolean isCartBadgePresent() {
-        // Если список элементов пуст, значит счетчика на корзине нет
-        return driver.findElements(cartBadge).size() > 0;
+        // Проверяем наличие списка элементов без падения в ошибку
+        return !driver.findElements(cartBadge).isEmpty();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

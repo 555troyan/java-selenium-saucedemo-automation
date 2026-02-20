@@ -2,96 +2,60 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import java.time.Duration;
 import org.openqa.selenium.chrome.ChromeOptions;
+import java.time.Duration;
 
 public class SauceTest {
-    WebDriver driver;
-    SauceLoginPage loginPage;
-    InventoryPage inventoryPage; // Добавляем вторую страницу
+    private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
 
+    public WebDriver getDriver() {
+        return driverThreadLocal.get();
+    }
 
     @BeforeEach
     void setup() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=1920,1080");
-
+        options.addArguments("--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
 
         if (System.getProperty("headless", "false").equals("true")) {
             options.addArguments("--headless");
-            options.addArguments("--no-sandbox");
-            options.addArguments("--disable-dev-shm-usage");
         }
 
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver(options);
-
-        // Устанавливаем ожидание, чтобы Selenium не "торопился"
-        driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
-
-        // ИНИЦИАЛИЗИРУЕМ СТРАНИЦЫ (Без этого тест не увидит кнопки)
-        loginPage = new SauceLoginPage(driver);
-        inventoryPage = new InventoryPage(driver);
-    } // Обязательно закрываем метод этой скобкой
-
-
-    @Test
-    @DisplayName("Позитивный тест: Добавление товара в корзину")
-    void testAddToCart() {
-        // Добавьте / в конце или убедитесь, что URL полный
-        driver.get("https://www.saucedemo.com");
-
-        loginPage.login("standard_user", "secret_sauce");
-        inventoryPage.addToCart();
-
-        String count = inventoryPage.getCartItemsCount();
-        Assertions.assertEquals("1", count, "Количество товаров в корзине не совпадает!");
-
-        Assertions.assertTrue(inventoryPage.isRemoveButtonDisplayed(),
-                "Кнопка 'Remove' не появилась после добавления в корзину!");
+        driverThreadLocal.set(new ChromeDriver(options));
+        getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
-    @DisplayName("Позитивный: Удаление товара из корзины")
-    void testRemoveFromCart() {
+    @DisplayName("Позитивный: Полный цикл работы с корзиной")
+    void testCartCycle() throws InterruptedException {
+        WebDriver driver = getDriver();
+        SauceLoginPage loginPage = new SauceLoginPage(driver);
+        InventoryPage inventoryPage = new InventoryPage(driver);
+
         driver.get("https://www.saucedemo.com");
+
         loginPage.login("standard_user", "secret_sauce");
 
-        // 1. Добавляем и проверяем, что счетчик "1"
+        // Добавление
         inventoryPage.addToCart();
         Assertions.assertEquals("1", inventoryPage.getCartItemsCount());
 
-        // 2. Удаляем товар
+        // Удаление
         inventoryPage.removeItem();
 
-        // 3. ПРОВЕРКА: Счетчик (красный кружок) должен исчезнуть
-        Assertions.assertFalse(inventoryPage.isCartBadgePresent(),
-                "Ошибка: Товар не удалился, счетчик всё еще виден!");
-    }
+        // Маленькая страховочная пауза для обновления DOM в параллели
+        Thread.sleep(500);
 
+        Assertions.assertFalse(inventoryPage.isCartBadgePresent(), "Счетчик не исчез после удаления!");
+    }
 
     @AfterEach
     void tearDown() {
-        if (driver != null) {
-           // driver.quit();
+        if (getDriver() != null) {
+            getDriver().quit();
+            driverThreadLocal.remove();
         }
     }
 }
