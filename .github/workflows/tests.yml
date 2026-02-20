@@ -25,10 +25,19 @@ jobs:
         # Флаг -Dheadless=true мы уже подготовили в коде ранее
         run: mvn test -Dheadless=true  || true
 
+
+      - name: Generate Allure Report
+        if: always()
+        # Генерируем HTML-отчет из папки allure-results в папку allure-report
+        run: |
+          sudo apt-get update && sudo apt-get install -y allure
+          allure generate allure-results --clean -o allure-report
+
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: allure-history
+          # Теперь указываем папку, где лежит сгенерированный index.html
+          publish_dir: allure-report
           publish_branch: gh-pages
