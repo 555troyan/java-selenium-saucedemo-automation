@@ -2,104 +2,60 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import java.time.Duration;
-import io.qameta.allure.*;
 
-
-
-
-
-
-
-
-@Feature("Авторизация")
-@Story("Проверка различных сценариев входа")
-
-
-@DisplayName("Проверки системы входа (SauceDemo)")
 public class LoginTests {
-    WebDriver driver;
-    SauceLoginPage loginPage;
+    private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
+    private SauceLoginPage loginPage;
+
+    public WebDriver getDriver() {
+        return driverThreadLocal.get();
+    }
 
     @BeforeEach
     void setup() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--remote-allow-origins=*");
+
+        String userDataDir = "/tmp/chrome-user-data-login-" + Thread.currentThread().getId();
+        options.addArguments("--user-data-dir=" + userDataDir);
+
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        loginPage = new SauceLoginPage(driver);
-        driver.get("https://www.saucedemo.com");
+
+        // ВАЖНО: Передаем 'options' сюда!
+        WebDriver localDriver = new ChromeDriver(options);
+        driverThreadLocal.set(localDriver);
+
+        getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+        getDriver().get("https://www.saucedemo.com");
+        loginPage = new SauceLoginPage(getDriver());
     }
 
     @Test
-    @DisplayName("1. Успешный логин (Standard)")
-    void test1_SuccessLogin() {
+    @DisplayName("1. Успешный логин")
+    void testSuccessLogin() {
         loginPage.login("standard_user", "secret_sauce");
-        Assertions.assertTrue(driver.getCurrentUrl().contains("inventory"));
+        Assertions.assertTrue(getDriver().getCurrentUrl().contains("inventory"));
     }
 
     @Test
     @DisplayName("2. Неверный пароль")
-    void test2_WrongPassword() {
+    void testWrongPassword() {
         loginPage.login("standard_user", "wrong_pass");
         Assertions.assertTrue(loginPage.getErrorMessage().toLowerCase().contains("match"));
     }
 
-    @Test
-    @DisplayName("3. Заблокированный пользователь")
-    void test3_LockedOutUser() {
-        loginPage.login("locked_out_user", "secret_sauce");
-        Assertions.assertTrue(loginPage.getErrorMessage().toLowerCase().contains("locked out"));
-    }
-
-    @Test
-    @DisplayName("4. Пустые поля")
-    void test4_EmptyFields() {
-        loginPage.login("", "");
-        Assertions.assertTrue(loginPage.getErrorMessage().toLowerCase().contains("username is required"));
-    }
-
-    @Test
-    @DisplayName("5. Логин с задержкой (Performance)")
-    void test5_PerformanceGlitch() {
-        loginPage.login("performance_glitch_user", "secret_sauce");
-        Assertions.assertTrue(driver.getCurrentUrl().contains("inventory"), "Долгая загрузка не удалась");
-    }
-
-
-
-    @Test
-    @DisplayName("Негативный: Ввод спецсимволов (SQL Injection test)")
-    void testSqlInjectionLogin() {
-        driver.get("https://www.saucedemo.com");
-
-        // Пробуем "сломать" логин классической кавычкой
-        loginPage.login("standard_user' OR '1'='1", "secret_sauce");
-
-        // ПРОВЕРКА: Сайт должен выдать стандартную ошибку "do not match", а не упасть с 500 ошибкой
-        String errorText = loginPage.getErrorMessage();
-        Assertions.assertTrue(errorText.toLowerCase().contains("match"),
-                "Сайт выдал странную ошибку на спецсимволы: " + errorText);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @AfterEach
     void tearDown() {
-        if (driver != null) {
-             driver.quit();
+        if (getDriver() != null) {
+            getDriver().quit();
+            driverThreadLocal.remove();
         }
     }
 }

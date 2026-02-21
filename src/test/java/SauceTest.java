@@ -7,6 +7,8 @@ import java.time.Duration;
 
 public class SauceTest {
     private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
+    private SauceLoginPage loginPage;
+    private InventoryPage inventoryPage;
 
     public WebDriver getDriver() {
         return driverThreadLocal.get();
@@ -15,40 +17,42 @@ public class SauceTest {
     @BeforeEach
     void setup() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--window-size=1920,1080");
-        options.addArguments("--headless=new"); // Режим без окна для GitHub
+
+        // КРИТИЧЕСКИЕ ФЛАГИ ДЛЯ DOCKER
+        options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
         options.addArguments("--remote-allow-origins=*");
 
+        // Уникальная папка профиля для каждого потока
+        String userDataDir = "/tmp/chrome-user-data-sauce-" + Thread.currentThread().getId();
+        options.addArguments("--user-data-dir=" + userDataDir);
+
         WebDriverManager.chromedriver().setup();
-        driverThreadLocal.set(new ChromeDriver(options));
-        getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+        // ВАЖНО: Передаем 'options' в скобки!
+        WebDriver localDriver = new ChromeDriver(options);
+        driverThreadLocal.set(localDriver);
+
+        getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+        loginPage = new SauceLoginPage(getDriver());
+        inventoryPage = new InventoryPage(getDriver());
     }
 
     @Test
     @DisplayName("Позитивный: Полный цикл работы с корзиной")
     void testCartCycle() {
-        WebDriver driver = getDriver();
-        SauceLoginPage loginPage = new SauceLoginPage(driver);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-
-        driver.get("https://www.saucedemo.com");
-
+        getDriver().get("https://www.saucedemo.com");
         loginPage.login("standard_user", "secret_sauce");
 
-        // 1. Добавляем и проверяем появление
         inventoryPage.addToCart();
-        Assertions.assertEquals("1", inventoryPage.getCartItemsCount(), "Товар не добавился!");
+        Assertions.assertEquals("1", inventoryPage.getCartItemsCount());
 
-        // 2. Удаляем
         inventoryPage.removeItem();
-
-        // 3. ЖДЕМ, пока счетчик реально исчезнет из DOM (решает проблему Flaky тестов)
         inventoryPage.waitForBadgeToDisappear();
-
-        // 4. Финальная проверка
-        Assertions.assertFalse(inventoryPage.isCartBadgePresent(), "Счетчик не исчез после удаления!");
+        Assertions.assertFalse(inventoryPage.isCartBadgePresent(), "Счетчик не исчез!");
     }
 
     @AfterEach
