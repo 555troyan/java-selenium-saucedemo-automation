@@ -1,0 +1,4 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","20126","Позитивный: Полный цикл работы с корзиной","","Sat Feb 21 15:53:17 UTC 2026","broken","Sat Feb 21 15:53:37 UTC 2026","","SauceTest","SauceTest","testCartCycle"
+"","5032","1. Успешный логин","","Sat Feb 21 15:53:17 UTC 2026","passed","Sat Feb 21 15:53:22 UTC 2026","","LoginTests","LoginTests","testSuccessLogin"
+"","5047","2. Неверный пароль","","Sat Feb 21 15:53:17 UTC 2026","passed","Sat Feb 21 15:53:22 UTC 2026","","LoginTests","LoginTests","testWrongPassword"
