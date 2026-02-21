@@ -1,8 +1,0 @@
-"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","6757","4. Пустые поля","","Fri Feb 20 21:53:04 UTC 2026","broken","Fri Feb 20 21:53:11 UTC 2026","","Проверки системы входа (SauceDemo)","LoginTests","test4_EmptyFields"
-"","6757","2. Неверный пароль","","Fri Feb 20 21:53:04 UTC 2026","broken","Fri Feb 20 21:53:11 UTC 2026","","Проверки системы входа (SauceDemo)","LoginTests","test2_WrongPassword"
-"","2597","5. Логин с задержкой (Performance)","","Fri Feb 20 21:53:08 UTC 2026","broken","Fri Feb 20 21:53:11 UTC 2026","","Проверки системы входа (SauceDemo)","LoginTests","test5_PerformanceGlitch"
-"","6755","1. Успешный логин (Standard)","","Fri Feb 20 21:53:04 UTC 2026","broken","Fri Feb 20 21:53:11 UTC 2026","","Проверки системы входа (SauceDemo)","LoginTests","test1_SuccessLogin"
-"","2606","3. Заблокированный пользователь","","Fri Feb 20 21:53:08 UTC 2026","broken","Fri Feb 20 21:53:11 UTC 2026","","Проверки системы входа (SauceDemo)","LoginTests","test3_LockedOutUser"
-"","2604","Негативный: Ввод спецсимволов (SQL Injection test)","","Fri Feb 20 21:53:08 UTC 2026","broken","Fri Feb 20 21:53:11 UTC 2026","","Проверки системы входа (SauceDemo)","LoginTests","testSqlInjectionLogin"
-"","21803","Позитивный: Полный цикл работы с корзиной","","Fri Feb 20 21:53:04 UTC 2026","broken","Fri Feb 20 21:53:26 UTC 2026","","SauceTest","SauceTest","testCartCycle"
