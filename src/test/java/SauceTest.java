@@ -10,33 +10,19 @@ public class SauceTest {
     private SauceLoginPage loginPage;
     private InventoryPage inventoryPage;
 
-    public WebDriver getDriver() {
-        return driverThreadLocal.get();
-    }
+    public WebDriver getDriver() { return driverThreadLocal.get(); }
 
     @BeforeEach
     void setup() {
         ChromeOptions options = new ChromeOptions();
-
-        // КРИТИЧЕСКИЕ ФЛАГИ ДЛЯ DOCKER
-        options.addArguments("--headless=new");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--disable-gpu");
-        options.addArguments("--window-size=1920,1080");
-        options.addArguments("--remote-allow-origins=*");
-
-        // Уникальная папка профиля для каждого потока
+        options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--window-size=1920,1080", "--remote-allow-origins=*");
         String userDataDir = "/tmp/chrome-user-data-sauce-" + Thread.currentThread().getId();
         options.addArguments("--user-data-dir=" + userDataDir);
 
         WebDriverManager.chromedriver().setup();
-
-        // ВАЖНО: Передаем 'options' в скобки!
-        WebDriver localDriver = new ChromeDriver(options);
-        driverThreadLocal.set(localDriver);
-
+        driverThreadLocal.set(new ChromeDriver(options));
         getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+
         loginPage = new SauceLoginPage(getDriver());
         inventoryPage = new InventoryPage(getDriver());
     }
@@ -47,8 +33,12 @@ public class SauceTest {
         getDriver().get("https://www.saucedemo.com");
         loginPage.login("standard_user", "secret_sauce");
 
+        // Ждем, пока URL сменится на каталог (подтверждение логина)
+        org.openqa.selenium.support.ui.WebDriverWait wait = new org.openqa.selenium.support.ui.WebDriverWait(getDriver(), Duration.ofSeconds(10));
+        wait.until(org.openqa.selenium.support.ui.ExpectedConditions.urlContains("inventory"));
+
         inventoryPage.addToCart();
-        Assertions.assertEquals("1", inventoryPage.getCartItemsCount());
+        Assertions.assertEquals("1", inventoryPage.getCartItemsCount(), "Счетчик не появился!");
 
         inventoryPage.removeItem();
         inventoryPage.waitForBadgeToDisappear();

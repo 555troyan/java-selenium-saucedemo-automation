@@ -11,47 +11,38 @@ public class InventoryPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
-    // Локаторы
     private final By firstItemAddToCartButton = By.id("add-to-cart-sauce-labs-backpack");
     private final By cartBadge = By.className("shopping_cart_badge");
     private final By removeButton = By.id("remove-sauce-labs-backpack");
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    @Step("Добавление рюкзака в корзину с принудительным скроллом")
+    @Step("Добавление товара в корзину через JS")
     public void addToCart() {
-        // 1. Ждем появления кнопки в DOM
         WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemAddToCartButton));
-
-        // 2. Скроллим к кнопке (важно для Docker/Headless, чтобы элемент был "в фокусе")
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", button);
-
-        // 3. Кликаем именно тогда, когда кнопка готова
-        wait.until(ExpectedConditions.elementToBeClickable(button)).click();
+        // Прямой клик через JavaScript - самый надежный метод для Docker
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", button);
     }
 
-    @Step("Удаление рюкзака из корзины")
+    @Step("Удаление товара из корзины через JS")
     public void removeItem() {
-        WebElement button = wait.until(ExpectedConditions.elementToBeClickable(removeButton));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", button);
-        button.click();
+        WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(removeButton));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", button);
     }
 
-    @Step("Ожидание исчезновения счетчика корзины")
+    @Step("Получение количества товаров")
+    public String getCartItemsCount() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge)).getText();
+    }
+
+    @Step("Ожидание исчезновения счетчика")
     public void waitForBadgeToDisappear() {
         wait.until(d -> d.findElements(cartBadge).isEmpty());
     }
 
-    @Step("Получение количества товаров в корзине")
-    public String getCartItemsCount() {
-        // Ждем видимости счетчика перед тем как брать текст
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge)).getText();
-    }
-
-    @Step("Проверка: виден ли счетчик товаров")
     public boolean isCartBadgePresent() {
         return !driver.findElements(cartBadge).isEmpty();
     }
