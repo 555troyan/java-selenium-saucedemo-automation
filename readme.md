@@ -1,33 +1,31 @@
 ![UI Tests](https://github.com)
 
 # 🛒 SauceDemo UI Automation Framework
-Профессиональный фреймворк для автоматизации тестирования магазина [SauceDemo](https://www.saucedemo.com) на языке **Java**.
+Фреймворк для автоматизации тестирования магазина [SauceDemo](https://www.saucedemo.com) на **Java 17**.
 
-## 🔗 Ссылки
-*   **Репозиторий:** [://github.com](https://://github.com)
-*   **Живой отчет Allure:** [555troyan.github.io/java-selenium-saucedemo/](https://555troyan.github.io)
+## 🔗 Ресурсы
+*   **GitHub:** [://github.com](https://://github.com)
+*   **Allure Report:** [555troyan.github.io/java-selenium-saucedemo/](https://555troyan.github.io)
 
-## 🛠 Стек технологий
-*   **Java 17** / **Maven**
-*   **Selenium WebDriver** (UI-тесты)
-*   **JUnit 5** (Тест-раннер)
-*   **Allure Report** (Визуализация результатов)
-*   **GitHub Actions** (CI/CD конвейер)
-*   **ThreadLocal** (Параллельный запуск)
+## 🛠 Стек и архитектура
+*   **Core:** Selenium WebDriver, JUnit 5, Maven.
+*   **Patterns:** **Page Object Model (POM)** и **ThreadLocal** (полная изоляция потоков при параллельном запуске).
+*   **Stability:** Внедрены **Explicit Waits** и **JS-клики** для устранения Flaky-тестов в Headless-режиме.
+*   **Reporting:** Интеграция с Allure Report (шаги, история, графики).
 
-## 🚀 Ключевые архитектурные решения
-1.  **Page Object Model (POM):** Разделение логики страниц и тестов для легкой поддержки кода.
-2.  **ThreadLocal WebDriver:** Обеспечена полная изоляция потоков при параллельном запуске. Тесты не «воруют» браузеры друг у друга.
-3.  **Explicit Waits (Явные ожидания):** Решена проблема **Flaky (мигающих) тестов** в CI/CD. Вместо нестабильных пауз `Thread.sleep` используются `WebDriverWait` для ожидания появления/исчезновения элементов.
-4.  **Headless-режим:** Тесты оптимизированы для запуска в Docker-контейнерах и на серверах GitHub Actions с разрешением экрана 1920x1080.
+## 🏗 Docker & CI/CD
+*   **Контейнеризация:** Настроен `Dockerfile` на базе `maven-chrome` для запуска в изолированной Linux-среде.
+*   **Pipeline:** GitHub Actions автоматизирует сборку образа, запуск тестов в 3 потока и деплой отчета на GitHub Pages.
 
-## 🧪 Что покрыто тестами
-*   **Авторизация:** Позитивные и негативные сценарии (заблокированные пользователи, неверные пароли).
-*   **Корзина:** Полный цикл (Add to Cart -> Verify Badge -> Remove -> Verify Empty).
-*   **Стабильность:** Проверка элементов под нагрузкой в 3+ параллельных потока.
+## 🧪 Тест-кейсы
+*   **Авторизация:** Позитивные/негативные сценарии, обход SQL-инъекций.
+*   **Корзина:** Полный цикл (Add -> Badge Verify -> Remove -> Empty Verify).
 
-## 📥 Как запустить локально
-1. Клонировать репозиторий.
-2. Выполнить команду в терминале:
-   ```bash
-   mvn clean test
+## 📥 Запуск
+```bash
+# Локально
+mvn clean test
+
+# Через Docker
+docker build -t sauce-tests .
+docker run --rm sauce-tests
